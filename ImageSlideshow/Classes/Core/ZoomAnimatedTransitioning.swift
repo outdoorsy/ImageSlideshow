@@ -265,16 +265,16 @@ class ZoomOutAnimator: ZoomAnimator, UIViewControllerAnimatedTransitioning {
             return animatorForCurrentSession
         }
 
-        let params = animationParams(using: transitionContext)
+        let (param1, param2, param3) = animationParams(using: transitionContext)
 
-        let animator = UIViewPropertyAnimator(duration: params.0, curve: .linear, animations: params.1)
-        animator.addCompletion(params.2)
+        let animator = UIViewPropertyAnimator(duration: param1, curve: .linear, animations: param2)
+        animator.addCompletion(param3)
         animatorForCurrentTransition = animator
 
         return animator
     }
 
-    private func animationParams(using transitionContext: UIViewControllerContextTransitioning) -> (TimeInterval, () -> Void, (Any) -> Void) {
+    private func animationParams(using transitionContext: UIViewControllerContextTransitioning) -> (TimeInterval, () -> Void, (UIViewAnimatingPosition) -> Void) {
         let toViewController: UIViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.to)!
 
         guard let fromViewController = transitionContext.viewController(forKey: UITransitionContextViewControllerKey.from) as? FullScreenSlideshowViewController else {
@@ -336,7 +336,7 @@ class ZoomOutAnimator: ZoomAnimator, UIViewControllerAnimatedTransitioning {
             transitionBackgroundView.alpha = 0
             transitionView.frame = transitionViewFinalFrame
         }
-        let completion = { (_: Any) in
+        let completion = { (_: UIViewAnimatingPosition) in
             let completed = !transitionContext.transitionWasCancelled
             self.referenceImageView?.alpha = 1
 
@@ -365,8 +365,8 @@ class ZoomOutAnimator: ZoomAnimator, UIViewControllerAnimatedTransitioning {
         if #available(iOS 10.0, *) {
             interruptibleAnimator(using: transitionContext).startAnimation()
         } else {
-            let params = animationParams(using: transitionContext)
-            UIView.animate(withDuration: params.0, delay: 0, options: UIViewAnimationOptions(), animations: params.1, completion: params.2)
+            let (param1, param2, param3) = animationParams(using: transitionContext)
+            UIView.animate(withDuration: param1, delay: 0, options: UIViewAnimationOptions(), animations: param2, completion: { success in param3(.end) })
         }
     }
 }
